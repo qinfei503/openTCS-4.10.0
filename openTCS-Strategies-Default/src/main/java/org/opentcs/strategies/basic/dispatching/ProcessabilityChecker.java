@@ -66,6 +66,7 @@ public class ProcessabilityChecker {
     requireNonNull(order, "order");
 
     // Check for matching categories
+    // 校验小车的任务类型，跟当前要执行的任务的类型是否一致
     if (!vehicle.getProcessableCategories().contains(order.getCategory())) {
       LOG.debug("Category '{}' of order '{}' not in categories '{}' of vehicle '{}'.",
                 order.getCategory(),
@@ -74,7 +75,7 @@ public class ProcessabilityChecker {
                 vehicle.getName());
       return false;
     }
-
+// 校验小车是否可以执行目的站点上包含的操作
     ExplainedBoolean result = vehicleControllerPool.getVehicleController(vehicle.getName())
         .canProcess(operationSequence(order));
     if (result.isTrue()) {

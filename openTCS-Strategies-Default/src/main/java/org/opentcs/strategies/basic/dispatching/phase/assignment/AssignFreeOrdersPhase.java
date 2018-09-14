@@ -12,6 +12,7 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.opentcs.components.kernel.Router;
 import org.opentcs.components.kernel.services.TCSObjectService;
@@ -155,17 +156,21 @@ public class AssignFreeOrdersPhase
     LOG.debug("Available for dispatching: {} transport orders and {} vehicles.",
               availableOrders.size(),
               availableVehicles.size());
-
-    if (availableVehicles.size() < availableOrders.size()) {
-      availableVehicles.stream()
-          .sorted(vehicleComparator)
+    /* ************* 以下是原代码 start **************************/
+    /*if (availableVehicles.size() < availableOrders.size()) {// 车少，遍历车，为每个车分配任务
+      availableVehicles.stream().sorted(vehicleComparator)
           .forEach(vehicle -> tryAssignOrder(vehicle));
     }
-    else {
-      availableOrders.stream()
-          .sorted(orderComparator)
+    else {// 任务少，遍历任务，为每个任务分配车
+      availableOrders.stream().sorted(orderComparator)
           .forEach(order -> tryAssignVehicle(order));
-    }
+    }*/
+      /* ************* 以上是原代码 end **************************/
+     // 现仅取“为每个任务分配车”
+      if(availableVehicles.size()>0 && availableOrders.size()>0){// 有空闲车，且有可执行的任务时，才做出分配动作
+          availableOrders.stream().sorted(orderComparator)
+                  .forEach(this::tryAssignVehicle);
+      }
   }
 
   private void tryAssignOrder(Vehicle vehicle) {
@@ -189,17 +194,14 @@ public class AssignFreeOrdersPhase
   private void tryAssignVehicle(TransportOrder order) {
     LOG.debug("Trying to find vehicle for transport order '{}'...", order.getName());
 
-    objectService.fetchObjects(Vehicle.class,
-                               vehicle -> availableForOrder(vehicle, order))
-        .stream()
-        .map(vehicle -> computeCandidate(vehicle, order))
-        .filter(optCandidate -> optCandidate.isPresent())
-        .map(optCandidate -> optCandidate.get())
-        .filter(candidate -> processabilityChecker.checkProcessability(candidate.getVehicle(),
-                                                                       order))
-        .sorted(vehicleCandidateComparator)
-        .findFirst()
-        .ifPresent(candidate -> assignOrder(candidate));
+      Set<Vehicle> vehicles=objectService.fetchObjects(Vehicle.class,vehicle -> availableForOrder(vehicle, order));
+      Stream<Optional<AssignmentCandidate>> stream =vehicles.stream() .map(vehicle -> computeCandidate(vehicle, order))
+              .filter(optCandidate -> optCandidate.isPresent());
+      Stream<AssignmentCandidate> stream3 =stream.map(optCandidate -> optCandidate.get());
+      // 过滤掉不能执行当前任务的小车（1、小车指定的任务类型与当前任务不一致，2、小当无法执行目的站点包含的操作）
+      Stream<AssignmentCandidate> stream4 =stream3.filter(candidate -> processabilityChecker.checkProcessability(candidate.getVehicle(),order));
+      Stream<AssignmentCandidate> stream5 =stream4.sorted(vehicleCandidateComparator);
+      stream5.findFirst().ifPresent(this::assignOrder);
   }
 
   private void assignOrder(AssignmentCandidate candidate) {
