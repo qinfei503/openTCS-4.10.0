@@ -1,6 +1,7 @@
 buildscript {
   repositories {
     jcenter()
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
     maven {
       url "https://plugins.gradle.org/m2/"
     }
@@ -118,5 +119,8 @@ task release {
 }
 
 task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
-  gradleVersion = '4.5'
+  gradleVersion = '4.9'
+}
+tasks.withType(JavaCompile){
+  options.encoding = "UTF-8"
 }
