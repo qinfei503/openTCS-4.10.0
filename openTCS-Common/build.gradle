@@ -16,7 +16,9 @@ processResources.doLast {
     props.store(it, null)
   }
 }
-
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
 task release {
   dependsOn build
 }

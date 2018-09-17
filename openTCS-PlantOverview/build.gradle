@@ -45,7 +45,9 @@ task release {
   dependsOn build
   dependsOn installDist
 }
-
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
 run {
   systemProperties(['java.util.logging.config.file':'./config/logging.config',\
                     'java.security.policy':'file:./config/java.policy',\

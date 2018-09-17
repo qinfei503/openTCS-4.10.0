@@ -4,7 +4,9 @@ dependencies {
   compile project(':openTCS-API-Injection')
   compile project(':openTCS-Common')
 }
-
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
 task release {
   dependsOn build
 }

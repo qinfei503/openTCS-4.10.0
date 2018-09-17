@@ -1,6 +1,8 @@
 apply from: "${rootDir}/gradle/application-guice.gradle"
 apply from: "${rootDir}/gradle/license-headers.gradle"
-
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
 if (!hasProperty('mainClass')) {
   ext.mainClass = 'org.opentcs.kernel.RunKernel'
 }
@@ -28,6 +30,10 @@ dependencies {
   compileOnly group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.8.11', classifier: 'sources'
   
   runtime group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.21'
+}
+
+compileJava {
+  options.compilerArgs << "-Xlint:-rawtypes"
 }
 
 distributions {

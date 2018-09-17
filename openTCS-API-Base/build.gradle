@@ -1,5 +1,7 @@
 apply from: "${rootDir}/gradle/license-headers.gradle"
-
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
 task release {
   dependsOn build
 }

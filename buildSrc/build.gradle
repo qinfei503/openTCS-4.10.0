@@ -8,7 +8,9 @@ dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.5'
   compile group: 'commons-io', name: 'commons-io', version: '2.5', classifier: 'sources'
 }
-
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
 gradlePlugin {
   plugins {
     TemplatePlugin {
