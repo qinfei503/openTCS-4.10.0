@@ -579,7 +579,7 @@ public class TransportOrdersContainerPanel
     try (SharedKernelServicePortal sharedPortal = portalProvider.register()) {
       for (TransportOrder order : toWithdraw) {
         sharedPortal.getPortal().getDispatcherService()
-            .withdrawByTransportOrder(order.getReference(), false);
+            .withdrawByTransportOrder(order.getReference(), true);
       }
     }
     catch (KernelRuntimeException exc) {

@@ -1,0 +1,27 @@
+/**
+ * Copyright (c) The openTCS Authors.
+ *
+ * This program is free software and subject to the MIT license. (For details,
+ * see the licensing information (LICENSE.txt) you should have received with
+ * this copy of the software.)
+ */
+package org.opentcs.actualvehicle;
+
+import org.opentcs.drivers.vehicle.VehicleCommAdapterDescription;
+
+import java.util.ResourceBundle;
+
+/**
+ * The loopback adapter's {@link VehicleCommAdapterDescription}.
+ *
+ * @author Martin Grzenia (Fraunhofer IML)
+ */
+public class LSDefaultCommunicationAdapterDescription
+    extends VehicleCommAdapterDescription {
+
+  @Override
+  public String getDescription() {
+    return ResourceBundle.getBundle("org/opentcs/virtualvehicle/Bundle")
+            .getString("LSDefaultAdapterFactoryDescription");
+  }
+}

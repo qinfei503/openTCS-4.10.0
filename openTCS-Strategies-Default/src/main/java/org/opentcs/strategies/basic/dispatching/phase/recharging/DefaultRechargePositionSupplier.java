@@ -124,7 +124,7 @@ public class DefaultRechargePositionSupplier
     }
 
     String preferredRechargeLocationName = vehicle.getProperty(PROPKEY_PREFERRED_RECHARGE_LOCATION);
-    if (assignedRechargeLocationName != null) {
+    if (preferredRechargeLocationName != null) {
       Location location = selectLocationWithName(preferredRechargeLocationName,
                                                  rechargeLocations.keySet());
       if (location != null) {

@@ -36,7 +36,7 @@ public class VehicleProcessModel {
   /**
    * A copy of the kernel's Vehicle instance.
    */
-  private final Vehicle vehicle;
+  protected final Vehicle vehicle;
   /**
    * Used for implementing property change events.
    */

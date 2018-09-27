@@ -182,6 +182,8 @@ public interface VehicleCommAdapter
     command.execute(this);
   }
 
+  void abortAssignedOrder();
+
   /**
    * Defines the possible states of a communication adapter.
    *

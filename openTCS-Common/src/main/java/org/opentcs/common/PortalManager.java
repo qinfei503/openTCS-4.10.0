@@ -103,6 +103,8 @@ public interface PortalManager {
      * Connect manually by showing a dialog allowing to enter connection parameters.
      */
     MANUAL,
+    /*by the selected parameters*/
+    SELECTED,
     /**
      * Connect to the portal we were previously connected to.
      */

@@ -16,6 +16,7 @@ import org.opentcs.access.LocalKernel;
 import org.opentcs.components.kernel.KernelExtension;
 import org.opentcs.components.kernel.services.InternalPlantModelService;
 import org.opentcs.customizations.kernel.ActiveInAllModes;
+import org.opentcs.kernel.extensions.controlcenter.vehicles.LSDefaultTCPServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,20 +44,24 @@ public class KernelStarter {
    */
   private final Set<KernelExtension> extensions;
 
+  private final LSDefaultTCPServer lsDefaultTCPServer;
+
   /**
    * Creates a new instance.
-   *
-   * @param kernel The kernel we're working with.
+   *  @param kernel The kernel we're working with.
    * @param plantModelService The plant model service.
    * @param extensions The kernel extensions to be registered.
+   * @param lsDefaultTCPServer
    */
   @Inject
   protected KernelStarter(LocalKernel kernel,
                           InternalPlantModelService plantModelService,
-                          @ActiveInAllModes Set<KernelExtension> extensions) {
+                          @ActiveInAllModes Set<KernelExtension> extensions,
+                          LSDefaultTCPServer lsDefaultTCPServer) {
     this.kernel = requireNonNull(kernel, "kernel");
     this.plantModelService = requireNonNull(plantModelService, "plantModelService");
     this.extensions = requireNonNull(extensions, "extensions");
+    this.lsDefaultTCPServer = lsDefaultTCPServer;
   }
 
   /**
@@ -79,5 +84,6 @@ public class KernelStarter {
     LOG.info("Loaded model named '{}'.", plantModelService.getModelName());
 
     kernel.setState(Kernel.State.OPERATING);
+    lsDefaultTCPServer.initialize();
   }
 }

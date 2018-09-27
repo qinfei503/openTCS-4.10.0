@@ -28,6 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import org.opentcs.access.Kernel;
 import org.opentcs.access.LocalKernel;
+import org.opentcs.actualvehicle.LSDefaultCommunicationAdapterFactory;
 import org.opentcs.components.kernel.ControlCenterPanel;
 import org.opentcs.components.kernel.services.TCSObjectService;
 import org.opentcs.data.model.Point;
@@ -217,10 +218,15 @@ public class DriverGUI
                                         SingleCellEditor adapterCellEditor) {
     final CommAdapterComboBox comboBox = new CommAdapterComboBox();
     commAdapterRegistry.findFactoriesFor(vehicleEntry.getVehicle())
-        .forEach(factory -> comboBox.addItem(factory));
+        .forEach(factory -> {
+          comboBox.addItem(factory);
+          if(factory instanceof LSDefaultCommunicationAdapterFactory){
+            comboBox.setSelectedItem(factory);
+          }
+        });
     // Set the selection to the attached comm adapter, (The vehicle is already attached to a comm
     // adapter due to auto attachment on startup.)
-    comboBox.setSelectedItem(vehicleEntry.getCommAdapterFactory());
+//    comboBox.setSelectedItem(vehicleEntry.getCommAdapterFactory());
     comboBox.setRenderer(new AdapterFactoryCellRenderer());
     comboBox.addPopupMenuListener(new BoundsPopupMenuListener());
     comboBox.addItemListener((ItemEvent evt) -> {
@@ -242,7 +248,9 @@ public class DriverGUI
       if (reply == JOptionPane.NO_OPTION) {
         return;
       }
+      if(comboBox.getSelectedItem() instanceof LSDefaultCommunicationAdapterFactory){
 
+      }
       attachManager.attachAdapterToVehicle(getSelectedVehicleName(),
                                            (VehicleCommAdapterFactory) comboBox.getSelectedItem());
     });

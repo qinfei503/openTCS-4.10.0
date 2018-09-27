@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opentcs.components.Lifecycle;
 import org.opentcs.components.kernel.Scheduler;
+import org.opentcs.data.model.Triple;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.util.ExplainedBoolean;
 import org.opentcs.util.annotations.ScheduledApiChange;
@@ -126,4 +127,10 @@ public interface VehicleController
   default Queue<MovementCommand> getCommandsSent() {
     return new LinkedList<>();
   }
+
+  void setVehiclePosition(String position);
+
+  void updateVehiclePrecisePosition(Triple precisePosition);
+
+  VehicleCommAdapter getCommAdapter();
 }

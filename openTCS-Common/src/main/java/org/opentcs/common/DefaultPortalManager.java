@@ -19,6 +19,7 @@ import org.opentcs.util.event.EventHandler;
 import org.opentcs.util.gui.dialog.ConnectToServerDialog;
 import org.opentcs.util.gui.dialog.ConnectionParamSet;
 import org.opentcs.util.gui.dialog.NullConnectionParamSet;
+import org.opentcs.util.gui.dialog.SelectConnectServerDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,8 @@ public class DefaultPortalManager
    * The current connection. {@link NullConnectionParamSet}, if no connection is currently
    * established.
    */
-  private ConnectionParamSet currentConnection = new NullConnectionParamSet();
+  private ConnectionParamSet currentConnection =new NullConnectionParamSet();
+  private ConnectionParamSet selectedParamSet=null;
 
   /**
    * Creates a new instance.
@@ -77,8 +79,22 @@ public class DefaultPortalManager
     this.eventHandler = requireNonNull(eventHandler, "eventHandler");
     this.servicePortal = requireNonNull(servicePortal, "servicePortal");
     this.connectionBookmarks = requireNonNull(connectionBookmarks, "connectionBookmarks");
+    doSelectedParamSet();
   }
 
+
+  /**选择链接参数
+   * @return
+   */
+  private void doSelectedParamSet(){
+//    ConnectionParamSet param = new ConnectionParamSet("Localhost|localhost|1099");
+    ConnectionParamSet param = null;
+    SelectConnectServerDialog dialog = new SelectConnectServerDialog();
+    dialog.setVisible(true);
+    if (dialog.getReturnStatus() == SelectConnectServerDialog.RET_OK) {
+      selectedParamSet= dialog.getConnectionParamSet();
+    }
+  }
   @Override
   public boolean connect(ConnectionMode mode) {
     if (isConnected()) {
@@ -93,6 +109,8 @@ public class DefaultPortalManager
         }
         ConnectionParamSet paramSet = connectionBookmarks.get(0);
         return connect(paramSet.getDescription(), paramSet.getHost(), paramSet.getPort());
+      case SELECTED:
+        return connectSelected();
       case MANUAL:
         return connectWithDialog();
       case RECONNECT:
@@ -191,5 +209,15 @@ public class DefaultPortalManager
     }
 
     return false;
+  }
+
+  private boolean connectSelected(){
+    if(selectedParamSet==null){
+      doSelectedParamSet();
+      if(selectedParamSet==null){
+        return false;
+      }
+    }
+    return connect(selectedParamSet.getDescription(), selectedParamSet.getHost(), selectedParamSet.getPort());
   }
 }

@@ -178,6 +178,7 @@ public abstract class BasicVehicleCommAdapter
     commandDispatcherThread.start();
     enabled = true;
     getProcessModel().setCommAdapterEnabled(true);
+    getProcessModel().setVehicleState(Vehicle.State.IDLE);
   }
 
   /**
@@ -392,6 +393,11 @@ public abstract class BasicVehicleCommAdapter
    */
   protected VehicleProcessModelTO createCustomTransferableProcessModel() {
     return new VehicleProcessModelTO();
+  }
+
+  @Override
+  public void abortAssignedOrder() {
+
   }
 
   /**

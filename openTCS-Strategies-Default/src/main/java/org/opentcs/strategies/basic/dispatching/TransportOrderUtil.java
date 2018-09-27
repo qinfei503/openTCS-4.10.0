@@ -391,7 +391,7 @@ public class TransportOrderUtil
 
     VehicleController vehicleController
         = vehicleControllerPool.getVehicleController(vehicle.getName());
-
+    vehicleController.getCommAdapter().abortAssignedOrder();
     if (immediateAbort) {
       LOG.info("{}: Immediate abort of transport order {}...",
                vehicle.getName(),

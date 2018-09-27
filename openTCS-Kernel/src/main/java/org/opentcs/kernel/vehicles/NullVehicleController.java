@@ -13,8 +13,10 @@ import static java.util.Objects.requireNonNull;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opentcs.data.model.TCSResource;
+import org.opentcs.data.model.Triple;
 import org.opentcs.data.order.DriveOrder;
 import org.opentcs.drivers.vehicle.AdapterCommand;
+import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleController;
 import org.opentcs.util.ExplainedBoolean;
 import org.slf4j.Logger;
@@ -99,6 +101,22 @@ public class NullVehicleController
   @Override
   public void sendCommAdapterCommand(AdapterCommand command) {
     LOG.warn("No comm adapter attached to vehicle {}", vehicleName);
+  }
+
+  @Override
+  public void setVehiclePosition(String position) {
+    LOG.warn("No comm adapter attached to vehicle {}", vehicleName);
+  }
+
+  @Override
+  public void updateVehiclePrecisePosition(Triple precisePosition) {
+    LOG.warn("No comm adapter attached to vehicle {}", vehicleName);
+  }
+
+  @Override
+  public VehicleCommAdapter getCommAdapter() {
+    LOG.warn("No comm adapter attached to vehicle {}", vehicleName);
+    return null;
   }
 
   @Override

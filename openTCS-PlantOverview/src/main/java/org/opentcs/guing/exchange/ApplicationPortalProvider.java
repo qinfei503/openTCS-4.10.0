@@ -103,6 +103,6 @@ public class ApplicationPortalProvider
   }
 
   private PortalManager.ConnectionMode toConnectionMode(boolean autoConnect) {
-    return autoConnect ? PortalManager.ConnectionMode.AUTO : PortalManager.ConnectionMode.MANUAL;
+    return autoConnect ? PortalManager.ConnectionMode.AUTO : PortalManager.ConnectionMode.SELECTED;
   }
 }

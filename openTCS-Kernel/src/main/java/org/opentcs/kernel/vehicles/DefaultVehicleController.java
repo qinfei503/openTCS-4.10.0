@@ -22,15 +22,18 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.opentcs.access.LocalKernel;
+import org.opentcs.access.to.LSVehicleServer;
 import org.opentcs.components.kernel.ResourceAllocationException;
 import org.opentcs.components.kernel.Scheduler;
 import org.opentcs.components.kernel.services.DispatcherService;
 import org.opentcs.components.kernel.services.InternalVehicleService;
 import org.opentcs.components.kernel.services.NotificationService;
+import org.opentcs.constants.LSDefaultConstants;
 import org.opentcs.customizations.ApplicationEventBus;
 import org.opentcs.data.ObjectUnknownException;
 import org.opentcs.data.TCSObjectEvent;
@@ -51,6 +54,7 @@ import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterEvent;
 import org.opentcs.drivers.vehicle.VehicleController;
 import org.opentcs.drivers.vehicle.VehicleProcessModel;
+import org.opentcs.drivers.vehicle.commands.LSDefaultCommand;
 import org.opentcs.drivers.vehicle.management.ProcessModelEvent;
 import static org.opentcs.util.Assertions.checkArgument;
 import static org.opentcs.util.Assertions.checkState;
@@ -151,7 +155,7 @@ public class DefaultVehicleController
    * resources at a time (which can cause deadlocks).
    */
   private volatile boolean waitingForAllocation;
-
+  private LSVehicleServer lsVehicleServer;
   /**
    * Creates a new instance associated with the given vehicle.
    *
@@ -172,7 +176,8 @@ public class DefaultVehicleController
                                   @Nonnull NotificationService notificationService,
                                   @Nonnull DispatcherService dispatcherService,
                                   @Nonnull Scheduler scheduler,
-                                  @Nonnull @ApplicationEventBus EventBus eventBus) {
+                                  @Nonnull @ApplicationEventBus EventBus eventBus,
+                                  @Nonnull LSVehicleServer lsVehicleServer) {
     this.vehicle = requireNonNull(vehicle, "vehicle");
     this.commAdapter = requireNonNull(adapter, "adapter");
     this.localKernel = requireNonNull(kernel, "kernel");
@@ -181,6 +186,7 @@ public class DefaultVehicleController
     this.dispatcherService = requireNonNull(dispatcherService, "dispatcherService");
     this.scheduler = requireNonNull(scheduler, "scheduler");
     this.eventBus = requireNonNull(eventBus, "eventBus");
+    this.lsVehicleServer=lsVehicleServer;
   }
 
   @Override
@@ -309,7 +315,12 @@ public class DefaultVehicleController
       lastCommandExecuted = null;
       vehicleService.updateVehicleRouteProgressIndex(vehicle.getReference(),
                                                      Vehicle.ROUTE_INDEX_DEFAULT);
-      createFutureCommands(newOrder, orderProperties);
+        createFutureCommands(newOrder, orderProperties);
+        List<MovementCommand> cmds=new ArrayList<MovementCommand>();
+        cmds.addAll(futureCommands);
+        List<String> strList =cmds.stream().map((cmd -> cmd.getStep().getDestinationPoint().getName())).collect(Collectors.toList());
+        LSDefaultCommand<List> lSDefaultCommand= new LSDefaultCommand<List>(LSDefaultConstants.S_COMMAND_TYPE_MOVE,strList);
+        lsVehicleServer.sendCommd(vehicle.getName(), lSDefaultCommand);
 
       if (canSendNextCommand()) {
         allocateForNextCommand();
@@ -631,7 +642,7 @@ public class DefaultVehicleController
     }
   }
 
-  private void updateVehiclePrecisePosition(Triple precisePosition)
+  public void updateVehiclePrecisePosition(Triple precisePosition)
       throws ObjectUnknownException {
     // Get an up-to-date copy of the vehicle
     Vehicle currVehicle = vehicleService.fetchObject(Vehicle.class, vehicle.getReference());
@@ -655,7 +666,7 @@ public class DefaultVehicleController
     }
   }
 
-  private void setVehiclePosition(String position) {
+  public void setVehiclePosition(String position) {
     // Place the vehicle on the given position, regardless of what the kernel
     // might expect. The vehicle is physically there, even if it shouldn't be.
     // The same is true for null values - if the vehicle says it's not on any
@@ -696,6 +707,10 @@ public class DefaultVehicleController
         updatePositionWithOrder(position, point);
       }
     }
+  }
+
+  public VehicleCommAdapter getCommAdapter(){
+      return this.commAdapter;
   }
 
   private void commandExecuted(MovementCommand executedCommand) {

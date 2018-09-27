@@ -7,14 +7,20 @@
  */
 package org.opentcs.kernel.util;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ResourceBundle;
+
 import static java.util.Objects.requireNonNull;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import org.opentcs.access.rmi.factories.SocketFactoryProvider;
 import org.opentcs.components.Lifecycle;
+import org.opentcs.constants.LSDefaultConstants;
 import org.opentcs.kernel.extensions.rmi.RmiKernelInterfaceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +54,9 @@ public class RegistryProvider
    */
   private boolean initialized;
 
+  private UDPServer udpServer = new UDPServer();
+    private static final ResourceBundle BUNDLE
+            = ResourceBundle.getBundle("org/opentcs/util/Bundle");
   /**
    * Creates a new instance.
    *
@@ -69,7 +78,7 @@ public class RegistryProvider
     }
 
     installRegistry();
-
+    new Thread(udpServer::initUDPServer).start();
     initialized = true;
   }
 
@@ -86,7 +95,7 @@ public class RegistryProvider
     }
 
     registry = null;
-
+    udpServer.close();
     initialized = false;
   }
 
@@ -109,5 +118,40 @@ public class RegistryProvider
       registry = null;
       throw new RuntimeException(ex);
     }
+  }
+
+
+  class UDPServer {
+    volatile DatagramSocket serverSocket =null;
+    public  void initUDPServer()  {
+      try{
+        ResourceBundle bundle
+                = ResourceBundle.getBundle("org/opentcs/kernel/distribution/config/opentcs-kernel-defaults-baseline");
+        serverSocket = new DatagramSocket(Integer.valueOf(bundle.getString("selectConnectServerDialog.UDPServer.port")));
+        byte[] rcv_arr = new byte[1024];
+        DatagramPacket packet = new DatagramPacket(rcv_arr, rcv_arr.length);
+        while(serverSocket!=null && !serverSocket.isClosed()){
+          serverSocket.receive(packet);
+          packet.getData();
+          if(LSDefaultConstants.BROADCAST_TYPE_CHECKRMISERVER.equals(new String(rcv_arr).trim())){
+              InetAddress address =packet.getAddress();
+//              System.out.println(new String(rcv_arr));
+              byte[] send_arr=LSDefaultConstants.BROADCAST_RESULT_RMISERVER.getBytes();
+              DatagramPacket packet1 = new DatagramPacket(send_arr, send_arr.length, address, Integer.valueOf(bundle.getString("selectConnectServerDialog.UDPClient.port")));
+              serverSocket.send(packet1);
+          }
+        }
+      }catch (Exception e){
+        throw new RuntimeException(e);
+      }
+
+    }
+
+    private void close(){
+      if(this.serverSocket!=null){
+        this.serverSocket.close();
+      }
+    }
+
   }
 }
