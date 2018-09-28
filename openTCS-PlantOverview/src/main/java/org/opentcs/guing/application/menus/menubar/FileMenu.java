@@ -22,6 +22,8 @@ import org.opentcs.guing.application.action.file.SaveModelAction;
 import org.opentcs.guing.application.action.file.SaveModelAsAction;
 import org.opentcs.guing.application.action.synchronize.LoadModelFromKernelAction;
 import org.opentcs.guing.application.action.synchronize.PersistInKernelAction;
+import org.opentcs.guing.application.action.synchronize.SwitchKernelAction;
+import org.opentcs.guing.util.PlantOverviewApplicationConfiguration;
 import org.opentcs.guing.util.ResourceBundleUtil;
 
 /**
@@ -56,6 +58,9 @@ public class FileMenu
    * A submenu for exporters.
    */
   private final FileExportMenu menuExport;
+
+  private final JMenuItem menuItemSwitchKernel;
+
   /**
    * A menu item for retrieving the system model data from the kernel.
    */
@@ -76,20 +81,24 @@ public class FileMenu
    * A menu item for closing the application.
    */
   private final JMenuItem menuItemClose;
-
+  /**
+   * The application's configuration.
+   */
+  private final PlantOverviewApplicationConfiguration configuration;
   /**
    * Creates a new instance.
-   *
-   * @param actionMap The application's action map.
+   *  @param actionMap The application's action map.
    * @param menuMode The sub-menu for the application's mode of operation.
    * @param menuImport The sub-menu for the selectable plant model importers.
    * @param menuExport The sub-menu for the selectable plant model exporters.
+   * @param configuration
    */
   @Inject
   public FileMenu(ViewActionMap actionMap,
                   FileModeMenu menuMode,
                   FileImportMenu menuImport,
-                  FileExportMenu menuExport) {
+                  FileExportMenu menuExport, PlantOverviewApplicationConfiguration configuration) {
+    this.configuration = configuration;
     requireNonNull(actionMap, "actionMap");
     this.menuMode = requireNonNull(menuMode, "menuMode");
     this.menuImport = requireNonNull(menuImport, "menuImport");
@@ -124,6 +133,9 @@ public class FileMenu
 
     addSeparator();
 
+    menuItemSwitchKernel = new JMenuItem(actionMap.get(SwitchKernelAction.ID));
+    labels.configureMenu(menuItemSwitchKernel, SwitchKernelAction.ID);
+    add(menuItemSwitchKernel);
     // Load model from kernel
     menuItemLoadModelFromKernel = new JMenuItem(actionMap.get(LoadModelFromKernelAction.ID));
     labels.configureMenu(menuItemLoadModelFromKernel, LoadModelFromKernelAction.ID);
@@ -169,6 +181,7 @@ public class FileMenu
     menuExport.setEnabled(mode == OperationMode.MODELLING);
 
     menuItemLoadModelFromKernel.setEnabled(mode == OperationMode.MODELLING);
+    menuItemSwitchKernel.setEnabled(mode == OperationMode.MODELLING && !configuration.useBookmarksWhenConnecting());
     menuItemPersistInKernel.setEnabled(mode == OperationMode.MODELLING);
   }
 

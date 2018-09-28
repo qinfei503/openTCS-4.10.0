@@ -71,6 +71,7 @@ import org.opentcs.access.KernelRuntimeException;
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.access.SharedKernelServicePortal;
 import org.opentcs.access.SharedKernelServicePortalProvider;
+import org.opentcs.common.PortalManager;
 import org.opentcs.components.kernel.services.ServiceUnavailableException;
 import org.opentcs.components.plantoverview.PlantModelExporter;
 import org.opentcs.components.plantoverview.PlantModelImporter;
@@ -150,13 +151,7 @@ import org.opentcs.guing.model.elements.VehicleModel;
 import org.opentcs.guing.storage.OpenTCSFactory;
 import org.opentcs.guing.transport.OrderSequencesContainerPanel;
 import org.opentcs.guing.transport.TransportOrdersContainerPanel;
-import org.opentcs.guing.util.Colors;
-import org.opentcs.guing.util.CourseObjectFactory;
-import org.opentcs.guing.util.Cursors;
-import org.opentcs.guing.util.DefaultInputOutputFormat;
-import org.opentcs.guing.util.PanelRegistry;
-import org.opentcs.guing.util.ResourceBundleUtil;
-import org.opentcs.guing.util.UserMessageHelper;
+import org.opentcs.guing.util.*;
 import org.opentcs.util.UniqueStringGenerator;
 import org.opentcs.util.event.EventBus;
 import org.opentcs.util.event.EventHandler;
@@ -369,9 +364,14 @@ public class OpenTCSView
     instance = view;
   }
 
+  private final PortalManager portalManager;
+
+    /**
+     * The application's configuration.
+     */
+    private final PlantOverviewApplicationConfiguration configuration;
   /**
    * Creates a new view.
-   *
    * @param appState Provides/manages the application's current state.
    * @param fFrame The <code>JFrame</code> this view is wrapped in.
    * @param progressIndicator The progress indicator to be used.
@@ -403,6 +403,8 @@ public class OpenTCSView
    * @param dockingManager Manages docking frames.
    * @param drawingViewFocusHandler Handles focussing of dockables.
    * @param dockableHandlerFactory A factory for handlers related to dockables.
+   * @param portalManager
+   * @param configuration
    */
   @Inject
   public OpenTCSView(ApplicationState appState,
@@ -435,7 +437,7 @@ public class OpenTCSView
                      @ApplicationEventBus EventBus eventBus,
                      DockingManager dockingManager,
                      DrawingViewFocusHandler drawingViewFocusHandler,
-                     DockableHandlerFactory dockableHandlerFactory) {
+                     DockableHandlerFactory dockableHandlerFactory, PortalManager portalManager, PlantOverviewApplicationConfiguration configuration) {
     this.appState = requireNonNull(appState, "appState");
     // XXX Check that this frame may actually be null when embedding the plant
     // XXX overview into another application.
@@ -473,6 +475,8 @@ public class OpenTCSView
     this.drawingViewFocusHandler = requireNonNull(drawingViewFocusHandler,
                                                   "drawingViewFocusHandler");
     this.dockableHandlerFactory = requireNonNull(dockableHandlerFactory, "dockableHandlerFactory");
+    this.portalManager = portalManager;
+    this.configuration = configuration;
   }
 
   @Override // AbstractView
@@ -881,6 +885,14 @@ public class OpenTCSView
     // makes sure the origin is on the lower left side and the ruler
     // are correctly drawn
     fDrawingEditor.initializeViewport();
+  }
+
+    /**
+     * 切换内核服务
+     */
+  public void switchKernelService() {
+      portalManager.setSelectedParamSet(null);
+      portalManager.connect(configuration.useBookmarksWhenConnecting()? PortalManager.ConnectionMode.AUTO : PortalManager.ConnectionMode.SELECTED);
   }
 
   public void loadCurrentKernelModel() {

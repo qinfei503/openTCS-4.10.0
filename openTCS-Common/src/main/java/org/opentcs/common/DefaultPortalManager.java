@@ -172,6 +172,10 @@ public class DefaultPortalManager
     return currentConnection.getPort();
   }
 
+  public void setSelectedParamSet(ConnectionParamSet selectedParamSet) {
+    this.selectedParamSet = selectedParamSet;
+  }
+
   /**
    * Tries to establish a connection to the portal.
    *

@@ -9,6 +9,7 @@ package org.opentcs.common;
 
 import org.opentcs.access.KernelServicePortal;
 import org.opentcs.components.kernel.services.ServiceUnavailableException;
+import org.opentcs.util.gui.dialog.ConnectionParamSet;
 
 /**
  * Declares methods for managing a connection to a remote portal.
@@ -65,6 +66,7 @@ public interface PortalManager {
    */
   int getPort();
 
+  void setSelectedParamSet(ConnectionParamSet selectedParamSet);
   /**
    * Defines the states in which a portal manager instance may be in.
    */

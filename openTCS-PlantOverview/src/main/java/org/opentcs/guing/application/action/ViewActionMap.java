@@ -35,10 +35,7 @@ import org.opentcs.guing.application.action.file.LoadModelAction;
 import org.opentcs.guing.application.action.file.NewModelAction;
 import org.opentcs.guing.application.action.file.SaveModelAction;
 import org.opentcs.guing.application.action.file.SaveModelAsAction;
-import org.opentcs.guing.application.action.synchronize.LoadModelFromKernelAction;
-import org.opentcs.guing.application.action.synchronize.PersistInKernelAction;
-import org.opentcs.guing.application.action.synchronize.SwitchToModellingAction;
-import org.opentcs.guing.application.action.synchronize.SwitchToOperatingAction;
+import org.opentcs.guing.application.action.synchronize.*;
 import org.opentcs.guing.application.action.view.AddBitmapAction;
 import org.opentcs.guing.application.action.view.AddDrawingViewAction;
 import org.opentcs.guing.application.action.view.AddTransportOrderSequenceView;
@@ -106,6 +103,7 @@ public class ViewActionMap
     // --- Menu Synchronize ---
     put(PersistInKernelAction.ID, new PersistInKernelAction(view));
     put(LoadModelFromKernelAction.ID, new LoadModelFromKernelAction(view));
+    put(SwitchKernelAction.ID, new SwitchKernelAction(view));
     put(SwitchToModellingAction.ID, modellingAction);
     put(SwitchToOperatingAction.ID, operatingingAction);
 
