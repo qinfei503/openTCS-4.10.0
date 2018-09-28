@@ -15,8 +15,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -53,8 +56,21 @@ public class LSDefaultCommAdapter extends BasicVehicleCommAdapter  implements Si
         super.initialize();
         getProcessModel().setVehicleState(Vehicle.State.IDLE);
         t_enable();
-        lsVehicleServer.sendCommd(vehicle.getName(), new LSDefaultCommand<>(LSDefaultConstants.S_COMMAND_TYPE_TERMINATE, new Object()));
+        terminateVehicleConnect();
         initialized = true;
+    }
+
+    /**
+     * 中断与车辆的连接
+     */
+    private void terminateVehicleConnect(){
+        if(LSVehicleServer.socketMap.containsKey(vehicle.getName())){
+            try {
+                lsVehicleServer.sendCommd(vehicle.getName(), new LSDefaultCommand<>(LSDefaultConstants.S_COMMAND_TYPE_TERMINATE, new Object()));
+                LSVehicleServer.socketMap.remove(vehicle.getName()).close();
+            } catch (IOException e) {
+            }
+        }
     }
     @Override
     public synchronized void enable() {}
@@ -91,8 +107,8 @@ public class LSDefaultCommAdapter extends BasicVehicleCommAdapter  implements Si
         }
         super.terminate();
         t_disable();
+        terminateVehicleConnect();
         initialized = false;
-        lsVehicleServer.sendCommd(vehicle.getName(), new LSDefaultCommand<>(LSDefaultConstants.S_COMMAND_TYPE_TERMINATE, new Object()));
     }
     @Override
     public void sendCommand(MovementCommand cmd) throws IllegalArgumentException {
@@ -172,6 +188,14 @@ public class LSDefaultCommAdapter extends BasicVehicleCommAdapter  implements Si
         lsVehicleServer.sendCommd(vehicle.getName(),lsDefaultCommand);
     }
 
+    @Override
+    public void sendDriverCommand(Queue<MovementCommand> futureCommands){
+        List<MovementCommand> cmds=new ArrayList<MovementCommand>();
+        cmds.addAll(futureCommands);
+        List<String> strList =cmds.stream().map((cmd -> cmd.getStep().getDestinationPoint().getName())).collect(Collectors.toList());
+        LSDefaultCommand<List<String>> lSDefaultCommand= new LSDefaultCommand<List<String>>(LSDefaultConstants.S_COMMAND_TYPE_MOVE,strList);
+        lsVehicleServer.sendCommd(vehicle.getName(), lSDefaultCommand);
+    }
     /**
      * A task do a vehicle's behaviour.
      */
@@ -197,6 +221,7 @@ public class LSDefaultCommAdapter extends BasicVehicleCommAdapter  implements Si
                 synchronized (LSDefaultCommAdapter.this){
                     LSDefaultCommAdapter.this.commandFinished=false;
                 }
+                getProcessModel().setVehicleState(Vehicle.State.EXECUTING);
 //                doMovement(stepList);
                 while(!LSDefaultCommAdapter.this.commandFinished){
                  /*System.out.println("====wait for finished");

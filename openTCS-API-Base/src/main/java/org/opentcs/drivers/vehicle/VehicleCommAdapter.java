@@ -184,6 +184,8 @@ public interface VehicleCommAdapter
 
   void abortAssignedOrder();
 
+  void sendDriverCommand(Queue<MovementCommand> futureCommands);
+
   /**
    * Defines the possible states of a communication adapter.
    *

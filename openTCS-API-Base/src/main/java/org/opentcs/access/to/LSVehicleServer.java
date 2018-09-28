@@ -7,5 +7,5 @@ import java.util.HashMap;
 
 public interface LSVehicleServer extends Lifecycle {
     final static HashMap<String, Socket> socketMap = new HashMap<String, Socket>();
-    void sendCommd(String key, LSDefaultCommand cmd);
+    void sendCommd(String key, LSDefaultCommand<?> cmd);
 }

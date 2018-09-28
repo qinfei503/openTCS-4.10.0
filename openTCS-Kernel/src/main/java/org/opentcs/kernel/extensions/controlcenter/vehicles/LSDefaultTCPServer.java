@@ -84,7 +84,7 @@ public class LSDefaultTCPServer implements LSVehicleServer {
                 connectState = new StateCommand(StateCommand.State.NORMAL);
                 connectState.setDescription("车辆接入成功：" + refVehicle.getName());
                 LOG.info("车辆接入：{}", refVehicle.getName());
-                new Thread(new LSDefaultVehicleModel(refVehicle, socket, objectPool, vehicleControllerPool)).start();
+                new Thread(new LSDefaultVehicleProcessModel(refVehicle, socket, objectPool, vehicleControllerPool)).start();
             } catch (IOException e) {
                 LOG.error("车辆接入IO异常：", e);
             } catch (RuntimeException e) {
@@ -133,7 +133,7 @@ public class LSDefaultTCPServer implements LSVehicleServer {
     }
 
     public void sendCommd(String vehicleName, LSDefaultCommand cmd) {
-        LOG.info("向车辆{}发送指令:{}", vehicleName, cmd);
+        LOG.info("向车辆{}发送指令:{}", vehicleName, JSONObject.toJSONString(cmd));
         Socket socket = socketMap.get(vehicleName);
         if (socket != null) {
             sendCommand(socket, cmd);

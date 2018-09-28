@@ -22,7 +22,6 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -33,7 +32,6 @@ import org.opentcs.components.kernel.Scheduler;
 import org.opentcs.components.kernel.services.DispatcherService;
 import org.opentcs.components.kernel.services.InternalVehicleService;
 import org.opentcs.components.kernel.services.NotificationService;
-import org.opentcs.constants.LSDefaultConstants;
 import org.opentcs.customizations.ApplicationEventBus;
 import org.opentcs.data.ObjectUnknownException;
 import org.opentcs.data.TCSObjectEvent;
@@ -54,7 +52,6 @@ import org.opentcs.drivers.vehicle.VehicleCommAdapter;
 import org.opentcs.drivers.vehicle.VehicleCommAdapterEvent;
 import org.opentcs.drivers.vehicle.VehicleController;
 import org.opentcs.drivers.vehicle.VehicleProcessModel;
-import org.opentcs.drivers.vehicle.commands.LSDefaultCommand;
 import org.opentcs.drivers.vehicle.management.ProcessModelEvent;
 import static org.opentcs.util.Assertions.checkArgument;
 import static org.opentcs.util.Assertions.checkState;
@@ -315,12 +312,9 @@ public class DefaultVehicleController
       lastCommandExecuted = null;
       vehicleService.updateVehicleRouteProgressIndex(vehicle.getReference(),
                                                      Vehicle.ROUTE_INDEX_DEFAULT);
-        createFutureCommands(newOrder, orderProperties);
-        List<MovementCommand> cmds=new ArrayList<MovementCommand>();
-        cmds.addAll(futureCommands);
-        List<String> strList =cmds.stream().map((cmd -> cmd.getStep().getDestinationPoint().getName())).collect(Collectors.toList());
-        LSDefaultCommand<List> lSDefaultCommand= new LSDefaultCommand<List>(LSDefaultConstants.S_COMMAND_TYPE_MOVE,strList);
-        lsVehicleServer.sendCommd(vehicle.getName(), lSDefaultCommand);
+      createFutureCommands(newOrder, orderProperties);
+      // 向车辆发送驾驶任务
+      commAdapter.sendDriverCommand(futureCommands);
 
       if (canSendNextCommand()) {
         allocateForNextCommand();

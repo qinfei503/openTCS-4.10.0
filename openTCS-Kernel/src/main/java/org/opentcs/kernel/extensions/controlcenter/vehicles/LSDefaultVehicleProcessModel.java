@@ -23,9 +23,9 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Set;
 
-public class LSDefaultVehicleModel extends VehicleProcessModel implements Runnable {
+public class LSDefaultVehicleProcessModel extends VehicleProcessModel implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LSDefaultVehicleModel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LSDefaultVehicleProcessModel.class);
     private Socket socket;
     private final TCSObjectPool objectPool;
     private final LocalVehicleControllerPool vehicleControllerPool;
@@ -40,7 +40,7 @@ public class LSDefaultVehicleModel extends VehicleProcessModel implements Runnab
      * @param objectPool
      * @param vehicleControllerPool
      */
-    public LSDefaultVehicleModel(@Nonnull Vehicle attachedVehicle, Socket socket, TCSObjectPool objectPool, LocalVehicleControllerPool vehicleControllerPool) {
+    public LSDefaultVehicleProcessModel(@Nonnull Vehicle attachedVehicle, Socket socket, TCSObjectPool objectPool, LocalVehicleControllerPool vehicleControllerPool) {
         super(attachedVehicle);
         this.socket = socket;
         this.objectPool = objectPool;
@@ -62,7 +62,6 @@ public class LSDefaultVehicleModel extends VehicleProcessModel implements Runnab
                 try {
                     receiveMsg(msg.trim());
                 } catch (Exception e) {
-                    // TODO kernel界面最好有提示
                     LOG.error(e.getMessage());
                 }
 

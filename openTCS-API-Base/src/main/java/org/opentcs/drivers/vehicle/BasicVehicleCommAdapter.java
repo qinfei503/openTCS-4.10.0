@@ -15,6 +15,7 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.management.VehicleProcessModelTO;
 import static org.opentcs.util.Assertions.checkInRange;
@@ -397,7 +398,9 @@ public abstract class BasicVehicleCommAdapter
 
   @Override
   public void abortAssignedOrder() {
-
+  }
+  @Override
+  public void sendDriverCommand(Queue<MovementCommand> futureCommands){
   }
 
   /**
