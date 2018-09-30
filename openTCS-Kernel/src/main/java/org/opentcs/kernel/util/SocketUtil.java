@@ -1,9 +1,6 @@
 package org.opentcs.kernel.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 public class SocketUtil {
 	public static byte[] intToBytes(int num){
@@ -45,17 +42,20 @@ public class SocketUtil {
 	}
 
 	public static String readNextPacketData(InputStream in) throws IOException {
+		BufferedInputStream bis = new BufferedInputStream(in);
 		byte[] head = new byte[4];
-		while(in.read(head)<0);
+		while(bis.read(head)<0);
 		int dataLength=bytesToInt(head);
 		byte[] data=new byte[dataLength];
-		if(in.read(data)<0){
+		if(bis.read(data)<0){
 			return "";
 		}
 		return new String(data,"UTF-8");
 	}
 
 	public static void sendPacketData(OutputStream out,String message) throws IOException {
-		out.write(messageToBytesWithLength(message));
+		BufferedOutputStream bos = new BufferedOutputStream(out);
+		bos.write(messageToBytesWithLength(message));
+		bos.flush();
 	}
 }
