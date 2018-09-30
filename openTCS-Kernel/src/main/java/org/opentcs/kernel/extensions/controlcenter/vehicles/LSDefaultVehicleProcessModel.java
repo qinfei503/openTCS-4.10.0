@@ -9,6 +9,7 @@ import org.opentcs.drivers.vehicle.VehicleController;
 import org.opentcs.drivers.vehicle.VehicleProcessModel;
 import org.opentcs.drivers.vehicle.commands.LSDefaultCommand;
 import org.opentcs.drivers.vehicle.commands.VehicleInfoCommand;
+import org.opentcs.kernel.util.SocketUtil;
 import org.opentcs.kernel.vehicles.LocalVehicleControllerPool;
 import org.opentcs.kernel.workingset.TCSObjectPool;
 import org.slf4j.Logger;
@@ -53,12 +54,11 @@ public class LSDefaultVehicleProcessModel extends VehicleProcessModel implements
 
     @Override
     public void run() {
-        BufferedReader bf = null;
+        InputStream is=null;
         try {
-            InputStream is = socket.getInputStream();
-            bf = new BufferedReader(new InputStreamReader(is));
+            is = socket.getInputStream();
             String msg = "";
-            while ((msg = bf.readLine()) != null) {
+            while (!(msg= SocketUtil.readNextPacketData(is)).trim().equals("")) {
                 try {
                     receiveMsg(msg.trim());
                 } catch (Exception e) {
@@ -73,9 +73,9 @@ public class LSDefaultVehicleProcessModel extends VehicleProcessModel implements
             synchronized (this) {
                 LSVehicleServer.socketMap.remove(vehicle.getName());
             }
-            if (bf != null) {
+            if (is != null) {
                 try {
-                    bf.close();
+                    is.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -83,7 +83,7 @@ public class LSDefaultVehicleProcessModel extends VehicleProcessModel implements
         }
     }
 
-    public void receiveMsg(String msg) {
+    private void receiveMsg(String msg) {
 //        JSONObject json = JSONObject.parseObject(msg.trim());
         LSDefaultCommand cmd = JSONObject.parseObject(msg, LSDefaultCommand.class);
         String type = cmd.getType();

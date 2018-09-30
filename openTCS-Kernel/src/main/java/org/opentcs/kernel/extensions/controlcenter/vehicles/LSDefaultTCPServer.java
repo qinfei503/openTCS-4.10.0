@@ -7,6 +7,7 @@ import org.opentcs.constants.LSDefaultConstants;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.drivers.vehicle.commands.StateCommand;
 import org.opentcs.drivers.vehicle.commands.LSDefaultCommand;
+import org.opentcs.kernel.util.SocketUtil;
 import org.opentcs.kernel.vehicles.LocalVehicleControllerPool;
 import org.opentcs.kernel.workingset.TCSObjectPool;
 import org.slf4j.Logger;
@@ -141,13 +142,10 @@ public class LSDefaultTCPServer implements LSVehicleServer {
     }
 
     private void sendCommand(Socket socket, LSDefaultCommand cmd) {
-        BufferedWriter bw = null;
-        PrintWriter pw = null;
         try {
             String msg = JSONObject.toJSONString(cmd);
             OutputStream os = socket.getOutputStream();
-            pw = new PrintWriter(new OutputStreamWriter(os, "UTF-8"), true);
-            pw.println(msg);
+            SocketUtil.sendPacketData(os,msg);
         } catch (Exception e) {
             LOG.error("向车辆发送指令异常！", e);
         }
