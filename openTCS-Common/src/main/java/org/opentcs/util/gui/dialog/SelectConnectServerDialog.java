@@ -125,7 +125,7 @@ public class SelectConnectServerDialog
         okButton = new javax.swing.JButton();
         cancelButton = new CancelButton();
         cbComboBox = new javax.swing.JComboBox<>();
-        setPreferredSize(new Dimension( 280,125));
+        setPreferredSize(new Dimension( 300,140));
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
 
@@ -149,7 +149,7 @@ public class SelectConnectServerDialog
                 cbComboBoxActionPerformed(evt);
             }
         });
-        cbComboBox.setPreferredSize(new Dimension(100,22));
+        cbComboBox.setPreferredSize(new Dimension(120,22));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -232,10 +232,10 @@ public class SelectConnectServerDialog
         return connectionParamSet;
     }
 
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         SelectConnectServerDialog dialog = new SelectConnectServerDialog();
         dialog.setVisible(true);
-    }*/
+    }
 
     class UDPClient {
        volatile DatagramSocket socket = null;
