@@ -19,7 +19,7 @@ import org.opentcs.drivers.vehicle.VehicleCommAdapter;
  * @author Stefan Walter (Fraunhofer IML)
  */
 public class StandardVehicleManagerPoolTest {
-
+ 
   /**
    * A name for a vehicle.
    */
